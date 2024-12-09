@@ -1,9 +1,10 @@
-const state = {
+ const state = {
    view:{
     squares: document.querySelectorAll(".square"),
     enemy: document.querySelector(".enemy"),
     timeLeft: document.querySelector("#time-left"),
     score: document.querySelector("#score"),
+    lives: document.querySelector("#lives")
    },
    values:{
     timeId: null,
@@ -11,18 +12,24 @@ const state = {
     hitPosition: 0,
     points: 0,
     currentTime: 30,
+    life: 3,
    },
    actions:{
     countDownTimerId: setInterval(countDown, 1000),
    },
 }
 
+function gameOver(){
+    clearInterval(state.actions.countDownTimerId);
+    alert("Game Over, Result: " + state.values.points);
+    location.reload();
+}
+
 function countDown(){
     state.values.currentTime--;
     state.view.timeLeft.textContent = state.values.currentTime;
     if(state.values.currentTime <= 0){
-        clearInterval(state.actions.countDownTimerId);
-        alert("Game Over, Result: " + state.values.points);
+        gameOver();
     };
 }
 
@@ -49,11 +56,17 @@ function moveEnemy(){
 function addListenerHitBox(){
     state.view.squares.forEach((square) => {
         square.addEventListener("mousedown", ()=>{
-            if(square.id === state.values.hitPosition){
+            if(square.id === state.values.hitPosition){ //quando o player clicar no inimigo, ele ira ganhar 1 ponto
                 playSound("hit");
                 state.values.points++;
                 state.view.score.textContent = state.values.points;
                 state.values.hitPosition = null;
+            } else{ //caso clique em um quadro sem o inimigo, o player ira perder vida
+                state.values.life--;
+                state.view.lives.textContent = "x" + state.values.life;
+                if(state.values.life == 0){
+                    gameOver();
+                }
             };
         });
     });
